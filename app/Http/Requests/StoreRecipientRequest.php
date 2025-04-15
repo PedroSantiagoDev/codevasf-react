@@ -11,7 +11,7 @@ class StoreRecipientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,15 @@ class StoreRecipientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'postal_code' => 'required|digits:8',
+            'street' => 'required|string|max:226',
+            'number' => 'nullable|string|max:36',
+            'complement' => 'nullable|string|max:36',
+            'neighborhood' => 'nullable|string|max:72',
+            'city' => 'required|string|max:72',
+            'state' => 'required|string|size:2',
+            'file' => 'required|file|mimes:pdf|max:104857600', // 100mb
         ];
     }
 }

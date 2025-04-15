@@ -14,6 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('recipients', [RecipientController::class, 'index'])->name('recipients.index');
+    Route::get('recipients/create', [RecipientController::class, 'create'])->name('recipients.create');
+    Route::post('recipients', [RecipientController::class, 'store'])->name('recipients.store');
+    Route::get('recipients/{recipient}/edit', [RecipientController::class, 'edit'])->name('recipients.edit');
 });
 
 require __DIR__ . '/settings.php';

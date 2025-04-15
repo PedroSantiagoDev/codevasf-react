@@ -2,66 +2,92 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\FinishTypeEnum;
 use App\Http\Requests\StoreRecipientRequest;
 use App\Http\Requests\UpdateRecipientRequest;
 use App\Models\Recipient;
 use Inertia\Inertia;
+use Inertia\Response;
+use Smalot\PdfParser\Parser;
 
 class RecipientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): Response
     {
-        return Inertia::render('recipient/list-recipients');
+        return Inertia::render('recipient/list-recipients', [
+            'recipients' => auth()->user()->recipients
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): Response
     {
-        //
+        return Inertia::render('recipient/create-recipient');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreRecipientRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $file = $validated['file'];
+        $uniqueName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('files', $uniqueName, 'public');
+        $fullPath = storage_path('app/public/' . $path);
+        $pages = $this->parserPdf($fullPath);
+        $size = $file->getSize();
+
+        $finishType = $pages <= 5
+            ? FinishTypeEnum::SELFENVELOPMENT->value
+            : FinishTypeEnum::INSERTION->value;
+
+        Recipient::create([
+            'name' => $validated['name'],
+            'street' => $validated['street'],
+            'number' => $validated['number'],
+            'complement' => $validated['complement'],
+            'neighborhood' => $validated['neighborhood'],
+            'city' => $validated['city'],
+            'state' => $validated['state'],
+            'postal_code' => $validated['postal_code'],
+            'file_name' => $uniqueName,
+            'file_path' => $path,
+            'file_size' => $size,
+            'file_pages' => $pages,
+            'finish_type' => $finishType,
+            'user_id' => auth()->user()->id
+        ]);
+
+        return redirect()->route('recipients.index')->with('Destinatário criado com sucesso.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Recipient $recipient)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Recipient $recipient)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateRecipientRequest $request, Recipient $recipient)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Recipient $recipient)
     {
         //
+    }
+
+    private function parserPdf(string $filepath): null|int
+    {
+        if (file_exists($filepath)) {
+            $parser = new Parser();
+            $pdf = $parser->parseFile($filepath);
+
+            return count($pdf->getPages());
+        }
+
+        return null;
     }
 }

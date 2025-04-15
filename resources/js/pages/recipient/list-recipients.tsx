@@ -40,42 +40,6 @@ type Recipients = {
     postal_code: string;
 };
 
-export const recipients: Recipients[] = [
-    {
-        id: '1',
-        name: 'Pedro',
-        street: 'Rua 5',
-        number: 'Nº 10',
-        complement: 'Quadra 94 Bloco A',
-        neighborhood: 'Cidade Olímpica',
-        city: 'São Luís',
-        state: 'MA',
-        postal_code: '44444-444',
-    },
-    {
-        id: '1',
-        name: 'A',
-        street: 'Rua 5',
-        number: 'Nº 10',
-        complement: 'Quadra 94 Bloco A',
-        neighborhood: 'Cidade Olímpica',
-        city: 'São Luís',
-        state: 'MA',
-        postal_code: '44444-444',
-    },
-    {
-        id: '1',
-        name: 'Pedro',
-        street: 'Rua 5',
-        number: 'Nº 10',
-        complement: 'Quadra 94 Bloco A',
-        neighborhood: 'Cidade Olímpica',
-        city: 'São Luís',
-        state: 'MA',
-        postal_code: '44444-444',
-    },
-];
-
 export const columns: ColumnDef<Recipients>[] = [
     {
         accessorKey: 'name',
@@ -120,7 +84,7 @@ export const columns: ColumnDef<Recipients>[] = [
         id: 'actions',
         header: 'Ações',
         enableHiding: false,
-        cell: () => {
+        cell: ({ row }) => {
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -130,7 +94,9 @@ export const columns: ColumnDef<Recipients>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Editar</DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <a href={route('recipients.edit', row.original)}>Editar</a>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Deletar</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -168,10 +134,12 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
                     className="max-w-sm"
                 />
 
-                <Button>
-                    <Plus className="h-4 w-4" />
-                    Adicionar
-                </Button>
+                <a href={route('recipients.create')}>
+                    <Button>
+                        <Plus className="h-4 w-4" />
+                        Adicionar
+                    </Button>
+                </a>
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -217,7 +185,7 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
     );
 }
 
-export default function ListRecipients() {
+export default function ListRecipients({ recipients }: { recipients: Recipients[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />

@@ -6,6 +6,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Mail } from 'lucide-react';
 import AppLogo from './app-logo';
+import { Toaster } from './ui/sonner';
 
 const mainNavItems: NavItem[] = [
     {
@@ -56,6 +57,7 @@ export function AppSidebar() {
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
+            <Toaster />
         </Sidebar>
     );
 }
