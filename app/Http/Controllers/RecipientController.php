@@ -15,7 +15,7 @@ class RecipientController extends Controller
     public function index(): Response
     {
         return Inertia::render('recipient/list-recipients', [
-            'recipients' => auth()->user()->recipients
+            'recipients' => auth()->user()->recipients,
         ]);
     }
 
@@ -29,9 +29,9 @@ class RecipientController extends Controller
         $validated = $request->validated();
 
         $file = $validated['file'];
-        $uniqueName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $uniqueName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
         $path = $file->storeAs('files', $uniqueName, 'public');
-        $fullPath = storage_path('app/public/' . $path);
+        $fullPath = storage_path('app/public/'.$path);
         $pages = $this->parserPdf($fullPath);
         $size = $file->getSize();
 
@@ -53,7 +53,7 @@ class RecipientController extends Controller
             'file_size' => $size,
             'file_pages' => $pages,
             'finish_type' => $finishType,
-            'user_id' => auth()->user()->id
+            'user_id' => auth()->user()->id,
         ]);
 
         return redirect()->route('recipients.index')->with('Destinatário criado com sucesso.');
@@ -79,10 +79,10 @@ class RecipientController extends Controller
         //
     }
 
-    private function parserPdf(string $filepath): null|int
+    private function parserPdf(string $filepath): ?int
     {
         if (file_exists($filepath)) {
-            $parser = new Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($filepath);
 
             return count($pdf->getPages());

@@ -104,6 +104,7 @@ export default function CreateRecipient() {
             toast('Erro ao buscar CEP', {
                 description: 'Ocorreu um erro ao buscar o CEP. Tente novamente mais tarde.',
             });
+            console.error(error);
         }
     };
 
