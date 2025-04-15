@@ -1,12 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -120,9 +120,7 @@ export const columns: ColumnDef<Recipients>[] = [
         id: 'actions',
         header: 'Ações',
         enableHiding: false,
-        cell: ({ row }) => {
-            const recipient = row.original;
-
+        cell: () => {
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
