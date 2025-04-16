@@ -13,13 +13,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::get('recipients', [RecipientController::class, 'index'])->name('recipients.index');
-    Route::get('recipients/create', [RecipientController::class, 'create'])->name('recipients.create');
-    Route::post('recipients', [RecipientController::class, 'store'])->name('recipients.store');
-    Route::get('recipients/{recipient}/edit', [RecipientController::class, 'edit'])->name('recipients.edit');
-    Route::put('recipients/{recipient}', [RecipientController::class, 'update'])->name('recipients.update');
-    Route::delete('recipients/{recipient}', [RecipientController::class, 'destroy'])->name('recipients.destroy');
+    Route::resource('recipients', RecipientController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
