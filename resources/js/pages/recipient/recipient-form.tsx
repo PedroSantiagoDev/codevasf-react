@@ -197,7 +197,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={submit} encType="multipart/form-data" className="space-y-4">
+                        <form onSubmit={submit} encType="multipart/form-data" id='recipientForm' className="space-y-4">
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="name" className="text-sm font-medium">
@@ -391,13 +391,18 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                                     <InputError message={errors.file} className="mt-1" />
                                 </div>
                             </div>
-
-                            <div className="flex justify-end">
-                                <Button className="text-base font-medium" disabled={processing}>
-                                    {processing ? 'Enviando...' : actionText}
-                                </Button>
-                            </div>
                         </form>
+
+                        <div className="flex justify-end gap-2 mt-3">
+                            <Button className="text-base font-medium" form="recipientForm" disabled={processing}>
+                                {processing ? 'Enviando...' : actionText}
+                            </Button>
+                            <a href={route('recipients.index')}>
+                                <Button className="text-base font-medium" variant="outline">
+                                    Cancelar
+                                </Button>
+                            </a>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
