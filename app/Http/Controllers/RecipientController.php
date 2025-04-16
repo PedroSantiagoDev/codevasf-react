@@ -49,11 +49,6 @@ class RecipientController extends Controller
         return redirect()->route('recipients.index')->with('success', 'Destinatário criado com sucesso.');
     }
 
-    public function show(Recipient $recipient)
-    {
-        //
-    }
-
     public function edit(Recipient $recipient): Response
     {
         return Inertia::render('recipient/recipient-form', [
@@ -113,15 +108,15 @@ class RecipientController extends Controller
 
             return redirect()->route('recipients.index')->with('success', 'Destinatário deletado.');
         } catch (\Exception $e) {
-            return redirect()->route('recipients.index')->with('error', 'Erro ao deletar o destinatário: '.$e->getMessage());
+            return redirect()->route('recipients.index')->with('error', 'Erro ao deletar o destinatário: ' . $e->getMessage());
         }
     }
 
     private function processPdfFile($file): array
     {
-        $uniqueName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+        $uniqueName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('files', $uniqueName, 'public');
-        $fullPath = storage_path('app/public/'.$path);
+        $fullPath = storage_path('app/public/' . $path);
         $pages = $this->parserPdf($fullPath);
         $size = $file->getSize();
 

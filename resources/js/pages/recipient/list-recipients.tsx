@@ -47,7 +47,7 @@ export const columns: ColumnDef<Recipients>[] = [
         header: ({ column }) => {
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    Email
+                    Nome
                     <ArrowUpDown />
                 </Button>
             );
