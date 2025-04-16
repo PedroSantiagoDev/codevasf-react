@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('recipients', [RecipientController::class, 'store'])->name('recipients.store');
     Route::get('recipients/{recipient}/edit', [RecipientController::class, 'edit'])->name('recipients.edit');
     Route::put('recipients/{recipient}', [RecipientController::class, 'update'])->name('recipients.update');
+    Route::delete('recipients/{recipient}', [RecipientController::class, 'destroy'])->name('recipients.destroy');
 });
 
 require __DIR__.'/settings.php';

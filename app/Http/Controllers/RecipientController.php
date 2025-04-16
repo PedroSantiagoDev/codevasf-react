@@ -104,7 +104,17 @@ class RecipientController extends Controller
 
     public function destroy(Recipient $recipient)
     {
-        //
+        try {
+            if ($recipient->file_path && Storage::disk('public')->exists($recipient->file_path)) {
+                Storage::disk('public')->delete($recipient->file_path);
+            }
+
+            $recipient->delete();
+
+            return redirect()->route('recipients.index')->with('success', 'Destinatário deletado.');
+        } catch (\Exception $e) {
+            return redirect()->route('recipients.index')->with('error', 'Erro ao deletar o destinatário: '.$e->getMessage());
+        }
     }
 
     private function processPdfFile($file): array

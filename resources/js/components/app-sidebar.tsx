@@ -51,7 +51,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
-                <Toaster />
+                <Toaster richColors />
             </SidebarContent>
 
             <SidebarFooter>

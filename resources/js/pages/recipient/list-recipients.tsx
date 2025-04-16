@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -18,8 +18,8 @@ import {
     SortingState,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Plus } from 'lucide-react';
-import React, { useEffect } from 'react';
+import { ArrowUpDown, Loader2, MoreHorizontal, Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -86,6 +86,21 @@ export const columns: ColumnDef<Recipients>[] = [
         header: 'Ações',
         enableHiding: false,
         cell: ({ row }) => {
+            const [isDeleting, setIsDeleting] = useState(false);
+
+            const handleDelete = () => {
+                setIsDeleting(true);
+                router.delete(route('recipients.destroy', row.original), {
+                    onSuccess: () => {
+                        setIsDeleting(false);
+                    },
+                    onError: (errors) => {
+                        toast.error('Erro ao deletar o destinatário.');
+                        setIsDeleting(false);
+                    },
+                });
+            };
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -98,7 +113,16 @@ export const columns: ColumnDef<Recipients>[] = [
                         <a href={route('recipients.edit', row.original)}>
                             <DropdownMenuItem>Editar</DropdownMenuItem>
                         </a>
-                        <DropdownMenuItem>Deletar</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} disabled={isDeleting}>
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Deletando...
+                                </>
+                            ) : (
+                                'Deletar'
+                            )}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
@@ -134,7 +158,6 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
                     onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
                     className="max-w-sm"
                 />
-
                 <a href={route('recipients.create')}>
                     <Button>
                         <Plus className="h-4 w-4" />
@@ -189,11 +212,15 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
 export default function ListRecipients({ recipients }: { recipients: Recipients[] }) {
     const { props } = usePage();
 
-    useEffect(() => {   
-        toast(props.flash?.sucesso, {
-            description: props.flash.success
-        })
+    useEffect(() => {
+        if (props.flash?.success) {
+            toast.success(props.flash.success);
+        }
+        if (props.flash?.error) {
+            toast.error(props.flash.error);
+        }
     }, [props.flash]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />

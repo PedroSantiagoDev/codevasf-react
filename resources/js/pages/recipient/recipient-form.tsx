@@ -64,7 +64,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
 
     const handleSearchCep = async () => {
         if (data.postal_code.length !== 8) {
-            toast('Formato inválido', {
+            toast.error('Formato inválido', {
                 description: 'CEP deve ter 8 dígitos',
             });
             return;
@@ -82,7 +82,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                     city: '',
                     state: '',
                 });
-                toast('CEP não encontrado', {
+                toast.error('CEP não encontrado', {
                     description: 'Verifique o CEP informado e tente novamente',
                 });
             } else {
@@ -93,12 +93,12 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                     city: addressData.localidade,
                     state: addressData.uf,
                 });
-                toast('CEP encontrado', {
+                toast.success('CEP encontrado', {
                     description: 'Endereço preenchido automaticamente',
                 });
             }
         } catch (error) {
-            toast('Erro ao buscar CEP', {
+            toast.error('Erro ao buscar CEP', {
                 description: 'Ocorreu um erro ao buscar o CEP. Tente novamente mais tarde.',
             });
             console.error(error);
@@ -126,7 +126,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                     {} as Record<string, string>,
                 ),
             );
-            toast('Erro de validação', {
+            toast.error('Erro de validação', {
                 description: 'Verifique os campos destacados e tente novamente',
             });
             return;
@@ -141,12 +141,12 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                 },
                 {
                     onSuccess: () => {
-                        toast('Destinatário atualizado com sucesso!', {
+                        toast.success('Destinatário atualizado com sucesso!', {
                             description: 'As alterações foram salvas',
                         });
                     },
                     onError: (errors) => {
-                        toast('Erro ao atualizar destinatário', {
+                        toast.error('Erro ao atualizar destinatário', {
                             description: 'Verifique os campos e tente novamente',
                         });
                         setValidationErrors(errors);
@@ -158,12 +158,12 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                 onSuccess: () => {
                     reset('street', 'number', 'complement', 'neighborhood', 'city', 'state', 'postal_code', 'file');
                     setFileName('');
-                    toast('Destinatário criado com sucesso!', {
+                    toast.success('Destinatário criado com sucesso!', {
                         description: 'O destinatário foi cadastrado no sistema',
                     });
                 },
                 onError: (errors) => {
-                    toast('Erro ao criar destinatário', {
+                    toast.error('Erro ao criar destinatário', {
                         description: 'Verifique os campos e tente novamente',
                     });
                     setValidationErrors(errors);
