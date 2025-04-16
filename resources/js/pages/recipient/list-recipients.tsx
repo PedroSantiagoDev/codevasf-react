@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -19,7 +19,8 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal, Plus } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -94,9 +95,9 @@ export const columns: ColumnDef<Recipients>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                            <a href={route('recipients.edit', row.original)}>Editar</a>
-                        </DropdownMenuItem>
+                        <a href={route('recipients.edit', row.original)}>
+                            <DropdownMenuItem>Editar</DropdownMenuItem>
+                        </a>
                         <DropdownMenuItem>Deletar</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -186,6 +187,13 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
 }
 
 export default function ListRecipients({ recipients }: { recipients: Recipients[] }) {
+    const { props } = usePage();
+
+    useEffect(() => {   
+        toast(props.flash?.sucesso, {
+            description: props.flash.success
+        })
+    }, [props.flash]);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />

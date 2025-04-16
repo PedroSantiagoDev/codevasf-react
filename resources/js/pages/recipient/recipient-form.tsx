@@ -15,17 +15,6 @@ import { type FormEventHandler, useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Destinatários',
-        href: '/recipients',
-    },
-    {
-        title: 'Criar destinatários',
-        href: '#',
-    },
-];
-
 type RecipientForm = {
     name: string;
     street: string;
@@ -47,21 +36,29 @@ const schema = z.object({
     neighborhood: z.string().max(72, 'Bairro deve ter no máximo 72 caracteres').optional(),
     city: z.string().min(1, 'Cidade é obrigatória').max(72, 'Cidade deve ter no máximo 72 caracteres'),
     state: z.string().length(2, 'Estado deve ter 2 letras'),
-    file: z.instanceof(File).refine((file) => file.type === 'application/pdf', 'Arquivo deve ser PDF'),
+    file: z
+        .union([z.instanceof(File), z.null()])
+        .refine((file) => file === null || file?.type === 'application/pdf', 'Arquivo deve ser PDF')
+        .optional(),
 });
 
-export default function CreateRecipient() {
+export default function RecipientForm({ recipient }: { recipient?: RecipientForm }) {
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [fileName, setFileName] = useState<string>('');
+
+    const isEdit = !!recipient;
+    const title = isEdit ? 'Editar Destinatário' : 'Criar Destinatário';
+    const actionText = isEdit ? 'Atualizar' : 'Cadastrar';
+
     const { data, setData, processing, errors, reset } = useForm<Required<RecipientForm>>({
-        name: '',
-        street: '',
-        number: '',
-        complement: '',
-        neighborhood: '',
-        city: '',
-        state: '',
-        postal_code: '',
+        name: recipient?.name || '',
+        street: recipient?.street || '',
+        number: recipient?.number || '',
+        complement: recipient?.complement || '',
+        neighborhood: recipient?.neighborhood || '',
+        city: recipient?.city || '',
+        state: recipient?.state || '',
+        postal_code: recipient?.postal_code || '',
         file: null,
     });
 
@@ -135,31 +132,69 @@ export default function CreateRecipient() {
             return;
         }
 
-        router.post(route('recipients.store'), data, {
-            onSuccess: () => {
-                reset('street', 'number', 'complement', 'neighborhood', 'city', 'state', 'postal_code', 'file');
-                setFileName('');
-                toast('Destinatário criado com sucesso!', {
-                    description: 'O destinatário foi cadastrado no sistema',
-                });
-            },
-            onError: (errors) => {
-                toast('Erro ao criar destinatário', {
-                    description: 'Verifique os campos e tente novamente',
-                });
-                setValidationErrors(errors);
-            },
-        });
+        if (isEdit) {
+            router.post(
+                route('recipients.update', recipient),
+                {
+                    ...data,
+                    _method: 'put',
+                },
+                {
+                    onSuccess: () => {
+                        toast('Destinatário atualizado com sucesso!', {
+                            description: 'As alterações foram salvas',
+                        });
+                    },
+                    onError: (errors) => {
+                        toast('Erro ao atualizar destinatário', {
+                            description: 'Verifique os campos e tente novamente',
+                        });
+                        setValidationErrors(errors);
+                    },
+                },
+            );
+        } else {
+            router.post(route('recipients.store'), data, {
+                onSuccess: () => {
+                    reset('street', 'number', 'complement', 'neighborhood', 'city', 'state', 'postal_code', 'file');
+                    setFileName('');
+                    toast('Destinatário criado com sucesso!', {
+                        description: 'O destinatário foi cadastrado no sistema',
+                    });
+                },
+                onError: (errors) => {
+                    toast('Erro ao criar destinatário', {
+                        description: 'Verifique os campos e tente novamente',
+                    });
+                    setValidationErrors(errors);
+                },
+            });
+        }
     };
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Destinatários',
+            href: '/recipients',
+        },
+        {
+            title: isEdit ? 'Editar destinatário' : 'Criar destinatário',
+            href: '#',
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Criar Destinatário" />
+            <Head title={title} />
             <div className="p-6">
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-bold">Cadastrar Novo Destinatário</CardTitle>
-                        <CardDescription>Preencha os dados do destinatário para cadastrá-lo no sistema</CardDescription>
+                        <CardTitle className="text-2xl font-bold">{isEdit ? 'Editar Destinatário' : 'Cadastrar Novo Destinatário'}</CardTitle>
+                        <CardDescription>
+                            {isEdit
+                                ? 'Preencha os dados do destinatário para atualizar'
+                                : 'Preencha os dados do destinatário para cadastrá-lo no sistema'}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} encType="multipart/form-data" className="space-y-4">
@@ -327,8 +362,8 @@ export default function CreateRecipient() {
                                                 id="file"
                                                 type="file"
                                                 onChange={handleFileChange}
-                                                required
                                                 accept="application/pdf"
+                                                required={!isEdit}
                                                 className="absolute inset-0 cursor-pointer opacity-0"
                                             />
                                             <div className="flex flex-col items-center justify-center gap-2 text-center">
@@ -359,7 +394,7 @@ export default function CreateRecipient() {
 
                             <div className="flex justify-end">
                                 <Button className="text-base font-medium" disabled={processing}>
-                                    {processing ? 'Enviando...' : 'Cadastrar'}
+                                    {processing ? 'Enviando...' : actionText}
                                 </Button>
                             </div>
                         </form>

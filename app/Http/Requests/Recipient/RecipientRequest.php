@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Recipient;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRecipientRequest extends FormRequest
+class RecipientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,7 +30,7 @@ class StoreRecipientRequest extends FormRequest
             'neighborhood' => 'nullable|string|max:72',
             'city' => 'required|string|max:72',
             'state' => 'required|string|size:2',
-            'file' => 'required|file|mimes:pdf|max:104857600', // 100mb
+            'file' => 'nullable|file|mimes:pdf|max:104857600', // 100mb
         ];
     }
 }
