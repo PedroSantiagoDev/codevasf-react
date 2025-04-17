@@ -22,15 +22,15 @@ class RecipientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'postal_code' => 'required|digits:8',
-            'street' => 'required|string|max:226',
-            'number' => 'nullable|string|max:36',
-            'complement' => 'nullable|string|max:36',
+            'name'         => 'required|string|max:255',
+            'postal_code'  => 'required|digits:8',
+            'street'       => 'required|string|max:226',
+            'number'       => 'nullable|string|max:36',
+            'complement'   => 'nullable|string|max:36',
             'neighborhood' => 'nullable|string|max:72',
-            'city' => 'required|string|max:72',
-            'state' => 'required|string|size:2',
-            'file' => 'nullable|file|mimes:pdf|max:104857600', // 100mb
+            'city'         => 'required|string|max:72',
+            'state'        => 'required|string|size:2',
+            'file'         => 'nullable|file|mimes:pdf|max:104857600', // 100mb
         ];
     }
 }

@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\{RedirectResponse, Request};
+use Inertia\{Inertia, Response};
 
 class EmailVerificationPromptController extends Controller
 {

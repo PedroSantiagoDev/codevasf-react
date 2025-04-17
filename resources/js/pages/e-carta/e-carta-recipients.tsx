@@ -1,12 +1,9 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -15,23 +12,22 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    Row,
     SortingState,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, Loader2, MoreHorizontal, Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
+import React from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Destinatários',
-        href: '/recipients',
+        title: 'Destinatários Publicados',
+        href: '/recipients/published',
     },
 ];
 
 type Recipients = {
     id: string;
+    user_name: string;
     name: string;
     street: string;
     number: string;
@@ -44,15 +40,20 @@ type Recipients = {
 
 export const columns: ColumnDef<Recipients>[] = [
     {
+        accessorKey: 'user.name',
+        header: 'Criador',
+    },
+    {
         accessorKey: 'name',
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    Nome
-                    <ArrowUpDown />
-                </Button>
-            );
-        },
+        header: 'Nome',
+        // header: ({ column }) => {
+        //     return (
+        //         <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        //             Nome
+        //             <ArrowUpDown />
+        //         </Button>
+        //     );
+        // },
     },
     {
         accessorKey: 'postal_code',
@@ -82,60 +83,7 @@ export const columns: ColumnDef<Recipients>[] = [
         accessorKey: 'state',
         header: 'Estado',
     },
-    {
-        id: 'actions',
-        header: 'Ações',
-        enableHiding: false,
-        cell: ({ row }) => <ActionsCell row={row} />,
-    },
 ];
-
-interface ActionsCellProps {
-    row: Row<Recipients>;
-}
-
-function ActionsCell({ row }: ActionsCellProps) {
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const handleDelete = () => {
-        setIsDeleting(true);
-        router.delete(route('recipients.destroy', row.original), {
-            onSuccess: () => {
-                setIsDeleting(false);
-            },
-            onError: () => {
-                toast.error('Erro ao deletar o destinatário.');
-                setIsDeleting(false);
-            },
-        });
-    };
-
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Abrir menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <a href={route('recipients.edit', row.original)}>
-                    <DropdownMenuItem>Editar</DropdownMenuItem>
-                </a>
-                <DropdownMenuItem onClick={handleDelete} disabled={isDeleting}>
-                    {isDeleting ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Deletando...
-                        </>
-                    ) : (
-                        'Deletar'
-                    )}
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
 
 function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData, TValue>[]; data: TData[] }) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -204,36 +152,45 @@ function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData,
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 p-4">
-                <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                    Anterior
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                    Proximo
-                </Button>
-            </div>
         </div>
     );
 }
 
-export default function ListRecipients({ recipients }: { recipients: Recipients[] }) {
-    const { props } = usePage();
-
-    useEffect(() => {
-        if (props.flash?.success) {
-            toast.success(props.flash.success);
-        }
-        if (props.flash?.error) {
-            toast.error(props.flash.error);
-        }
-    }, [props.flash]);
-
+export default function ECartaRecipients({
+    recipients,
+}: {
+    recipients: {
+        data: Recipients[];
+        current_page: number;
+        last_page: number;
+        total: number;
+        per_page: number;
+    };
+}) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Destinatários" />
+            <Head title="Destinatários Publicados" />
             <div className="p-4">
                 <h1 className="mb-4 text-2xl font-bold">Lista de Destinatários</h1>
-                <DataTable columns={columns} data={recipients} />
+                <DataTable columns={columns} data={recipients.data} />
+                <div className="mt-2 flex items-center justify-end space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.visit(`?page=${recipients.current_page - 1}`)}
+                        disabled={recipients.current_page === 1}
+                    >
+                        Anterior
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.visit(`?page=${recipients.current_page + 1}`)}
+                        disabled={recipients.current_page === recipients.last_page}
+                    >
+                        Proximo
+                    </Button>
+                </div>
             </div>
         </AppLayout>
     );

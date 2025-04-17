@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\FinishTypeEnum;
 use App\Http\Requests\Recipient\RecipientRequest;
 use App\Models\Recipient;
+use Illuminate\Http\{RedirectResponse, UploadedFile};
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 use Smalot\PdfParser\Parser;
 
 class RecipientController extends Controller
@@ -24,26 +24,26 @@ class RecipientController extends Controller
         return Inertia::render('recipient/recipient-form');
     }
 
-    public function store(RecipientRequest $request)
+    public function store(RecipientRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
         $pdfData = $this->processPdfFile($validated['file']);
 
         Recipient::create([
-            'name' => $validated['name'],
-            'street' => $validated['street'],
-            'number' => $validated['number'],
-            'complement' => $validated['complement'],
+            'name'         => $validated['name'],
+            'street'       => $validated['street'],
+            'number'       => $validated['number'],
+            'complement'   => $validated['complement'],
             'neighborhood' => $validated['neighborhood'],
-            'city' => $validated['city'],
-            'state' => $validated['state'],
-            'postal_code' => $validated['postal_code'],
-            'file_path' => $pdfData['file_path'],
-            'file_size' => $pdfData['file_size'],
-            'file_pages' => $pdfData['file_pages'],
-            'finish_type' => $pdfData['finish_type'],
-            'user_id' => auth()->user()->id,
+            'city'         => $validated['city'],
+            'state'        => $validated['state'],
+            'postal_code'  => $validated['postal_code'],
+            'file_path'    => $pdfData['file_path'],
+            'file_size'    => $pdfData['file_size'],
+            'file_pages'   => $pdfData['file_pages'],
+            'finish_type'  => $pdfData['finish_type'],
+            'user_id'      => auth()->user()->id,
         ]);
 
         return redirect()->route('recipients.index')->with('success', 'Destinatário criado com sucesso.');
@@ -56,7 +56,7 @@ class RecipientController extends Controller
         ]);
     }
 
-    public function update(RecipientRequest $request, Recipient $recipient)
+    public function update(RecipientRequest $request, Recipient $recipient): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -68,36 +68,36 @@ class RecipientController extends Controller
             $pdfData = $this->processPdfFile($validated['file']);
 
             $recipient->update([
-                'name' => $validated['name'],
-                'street' => $validated['street'],
-                'number' => $validated['number'],
-                'complement' => $validated['complement'],
+                'name'         => $validated['name'],
+                'street'       => $validated['street'],
+                'number'       => $validated['number'],
+                'complement'   => $validated['complement'],
                 'neighborhood' => $validated['neighborhood'],
-                'city' => $validated['city'],
-                'state' => $validated['state'],
-                'postal_code' => $validated['postal_code'],
-                'file_path' => $pdfData['file_path'],
-                'file_size' => $pdfData['file_size'],
-                'file_pages' => $pdfData['file_pages'],
-                'finish_type' => $pdfData['finish_type'],
+                'city'         => $validated['city'],
+                'state'        => $validated['state'],
+                'postal_code'  => $validated['postal_code'],
+                'file_path'    => $pdfData['file_path'],
+                'file_size'    => $pdfData['file_size'],
+                'file_pages'   => $pdfData['file_pages'],
+                'finish_type'  => $pdfData['finish_type'],
             ]);
         } else {
             $recipient->update([
-                'name' => $validated['name'],
-                'street' => $validated['street'],
-                'number' => $validated['number'],
-                'complement' => $validated['complement'],
+                'name'         => $validated['name'],
+                'street'       => $validated['street'],
+                'number'       => $validated['number'],
+                'complement'   => $validated['complement'],
                 'neighborhood' => $validated['neighborhood'],
-                'city' => $validated['city'],
-                'state' => $validated['state'],
-                'postal_code' => $validated['postal_code'],
+                'city'         => $validated['city'],
+                'state'        => $validated['state'],
+                'postal_code'  => $validated['postal_code'],
             ]);
         }
 
         return redirect()->route('recipients.index')->with('success', 'Destinatário atualizado com sucesso.');
     }
 
-    public function destroy(Recipient $recipient)
+    public function destroy(Recipient $recipient): RedirectResponse
     {
         try {
             if ($recipient->file_path && Storage::disk('public')->exists($recipient->file_path)) {
@@ -112,22 +112,30 @@ class RecipientController extends Controller
         }
     }
 
-    private function processPdfFile($file): array
+    /**
+     * @return array{
+     *     file_path: string,
+     *     file_size: int,
+     *     file_pages: int,
+     *     finish_type: string
+     * }
+     */
+    private function processPdfFile(UploadedFile $file): array
     {
         $uniqueName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('files', $uniqueName, 'public');
-        $fullPath = storage_path('app/public/' . $path);
-        $pages = $this->parserPdf($fullPath);
-        $size = $file->getSize();
+        $path       = $file->storeAs('files', $uniqueName, 'public');
+        $fullPath   = storage_path('app/public/' . $path);
+        $pages      = $this->parserPdf($fullPath);
+        $size       = $file->getSize();
 
         $finishType = $pages <= 5
             ? FinishTypeEnum::SELFENVELOPMENT->value
             : FinishTypeEnum::INSERTION->value;
 
         return [
-            'file_path' => $path,
-            'file_size' => $size,
-            'file_pages' => $pages,
+            'file_path'   => $path,
+            'file_size'   => $size,
+            'file_pages'  => $pages,
             'finish_type' => $finishType,
         ];
     }
@@ -135,8 +143,8 @@ class RecipientController extends Controller
     private function parserPdf(string $filepath): ?int
     {
         if (file_exists($filepath)) {
-            $parser = new Parser;
-            $pdf = $parser->parseFile($filepath);
+            $parser = new Parser();
+            $pdf    = $parser->parseFile($filepath);
 
             return count($pdf->getPages());
         }

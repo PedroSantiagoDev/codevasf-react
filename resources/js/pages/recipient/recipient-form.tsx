@@ -197,7 +197,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={submit} encType="multipart/form-data" id='recipientForm' className="space-y-4">
+                        <form onSubmit={submit} encType="multipart/form-data" id="recipientForm" className="space-y-4">
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="name" className="text-sm font-medium">
@@ -393,7 +393,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
                             </div>
                         </form>
 
-                        <div className="flex justify-end gap-2 mt-3">
+                        <div className="mt-3 flex justify-end gap-2">
                             <Button className="text-base font-medium" form="recipientForm" disabled={processing}>
                                 {processing ? 'Enviando...' : actionText}
                             </Button>

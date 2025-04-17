@@ -2,22 +2,37 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Mail } from 'lucide-react';
+import { BookOpen, Folder, Inbox, LayoutGrid, Mail } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Toaster } from './ui/sonner';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: NavGroup[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
+        title: 'Links',
+        items: [
+            {
+                title: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Destinatários',
+                href: '/recipients',
+                icon: Mail,
+            },
+        ],
     },
     {
-        title: 'Destinatários',
-        href: '/recipients',
-        icon: Mail,
+        title: 'E-Carta',
+        items: [
+            {
+                title: 'Destinatários Publicados',
+                href: '/recipients/published',
+                icon: Inbox,
+            },
+        ],
     },
 ];
 
