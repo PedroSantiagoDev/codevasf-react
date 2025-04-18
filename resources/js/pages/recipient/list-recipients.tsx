@@ -1,26 +1,14 @@
 'use client';
 
+import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    Row,
-    SortingState,
-    useReactTable,
-} from '@tanstack/react-table';
-import { ArrowUpDown, Loader2, MoreHorizontal, Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { ColumnDef, Row } from '@tanstack/react-table';
+import { Loader2, MoreHorizontal } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -45,14 +33,7 @@ type Recipients = {
 export const columns: ColumnDef<Recipients>[] = [
     {
         accessorKey: 'name',
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    Nome
-                    <ArrowUpDown />
-                </Button>
-            );
-        },
+        header: 'Nome',
     },
     {
         accessorKey: 'postal_code',
@@ -137,86 +118,19 @@ function ActionsCell({ row }: ActionsCellProps) {
     );
 }
 
-function DataTable<TData, TValue>({ columns, data }: { columns: ColumnDef<TData, TValue>[]; data: TData[] }) {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
-        getFilteredRowModel: getFilteredRowModel(),
-        state: {
-            sorting,
-            columnFilters,
-        },
-    });
-
-    return (
-        <div className="w-full">
-            <div className="mb-3 flex items-center justify-between">
-                <Input
-                    placeholder="Filtra nomes..."
-                    value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                    onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-                    className="max-w-sm"
-                />
-                <a href={route('recipients.create')}>
-                    <Button>
-                        <Plus className="h-4 w-4" />
-                        Adicionar
-                    </Button>
-                </a>
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    Nenhum resultado encontrado.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 p-4">
-                <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                    Anterior
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                    Proximo
-                </Button>
-            </div>
-        </div>
-    );
-}
-
-export default function ListRecipients({ recipients }: { recipients: Recipients[] }) {
+export default function ListRecipients({
+    recipients,
+}: {
+    recipients: {
+        data: Recipients[];
+        current_page: number;
+        last_page: number;
+        prev_page_url: string | null;
+        next_page_url: string | null;
+        per_page: number;
+        total: number;
+    };
+}) {
     const { props } = usePage();
 
     useEffect(() => {
@@ -228,12 +142,34 @@ export default function ListRecipients({ recipients }: { recipients: Recipients[
         }
     }, [props.flash]);
 
+    const handlePageChance = (url: string) => {
+        router.visit(url, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+
+    const handlePerPageChange = (perPage: number) => {
+        const searchParams = new URLSearchParams(window.location.search);
+        searchParams.set('per_page', String(perPage));
+        router.visit(`${window.location.pathname}?${searchParams.toString()}`, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />
             <div className="p-4">
                 <h1 className="mb-4 text-2xl font-bold">Lista de Destinatários</h1>
-                <DataTable columns={columns} data={recipients} />
+                <DataTable
+                    columns={columns}
+                    data={recipients.data}
+                    meta={recipients}
+                    onPageChange={handlePageChance}
+                    onPerPageChange={handlePerPageChange}
+                />
             </div>
         </AppLayout>
     );

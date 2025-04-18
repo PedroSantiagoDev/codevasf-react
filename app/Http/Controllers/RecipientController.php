@@ -5,17 +5,21 @@ namespace App\Http\Controllers;
 use App\Enums\FinishTypeEnum;
 use App\Http\Requests\Recipient\RecipientRequest;
 use App\Models\Recipient;
-use Illuminate\Http\{RedirectResponse, UploadedFile};
+use Illuminate\Http\{RedirectResponse, Request, UploadedFile};
 use Illuminate\Support\Facades\Storage;
 use Inertia\{Inertia, Response};
 use Smalot\PdfParser\Parser;
 
 class RecipientController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $perPage = $request->input('per_page', 10);
+
+        $recipients = auth()->user()->recipients()->paginate($perPage);
+
         return Inertia::render('recipient/list-recipients', [
-            'recipients' => auth()->user()->recipients,
+            'recipients' => $recipients,
         ]);
     }
 
