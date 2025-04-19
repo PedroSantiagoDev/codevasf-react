@@ -178,8 +178,8 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
             href: '/recipients',
         },
         {
-            title: isEdit ? 'Editar destinatário' : 'Criar destinatário',
-            href: '#',
+            title: isEdit ? 'Editar' : 'Criar',
+            href: '/recipients',
         },
     ];
 
@@ -189,7 +189,7 @@ export default function RecipientForm({ recipient }: { recipient?: RecipientForm
             <div className="p-6">
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-bold">{isEdit ? 'Editar Destinatário' : 'Cadastrar Novo Destinatário'}</CardTitle>
+                        <CardTitle className="text-2xl font-bold">{isEdit ? 'Editar Destinatário' : 'Criar Destinatário'}</CardTitle>
                         <CardDescription>
                             {isEdit
                                 ? 'Preencha os dados do destinatário para atualizar'

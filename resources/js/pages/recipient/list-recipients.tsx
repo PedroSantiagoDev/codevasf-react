@@ -16,6 +16,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         title: 'Destinatários',
         href: '/recipients',
     },
+    {
+        title: 'Listar',
+        href: '/recipients',
+    },
 ];
 
 type Recipients = {
@@ -33,35 +37,47 @@ type Recipients = {
 export const columns: ColumnDef<Recipients>[] = [
     {
         accessorKey: 'name',
-        header: 'Nome',
+        header: () => <div className="text-center">Nome</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('name')}</div>,
     },
     {
         accessorKey: 'postal_code',
-        header: 'CEP',
+        header: () => <div className="text-center">CEP</div>,
+        cell: ({ row }) => {
+            const cep: string = row.getValue('postal_code');
+            const cepFormatted = cep.replace(/^(\d{5})(\d{3})$/, '$1-$2');
+            return <div className="text-center">{cepFormatted}</div>;
+        },
     },
     {
         accessorKey: 'street',
-        header: 'Endereço',
+        header: () => <div className="text-center">Endereço</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('street')}</div>,
     },
     {
         accessorKey: 'number',
-        header: 'Numero',
+        header: () => <div className="text-center">Número</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('number')}</div>,
     },
     {
         accessorKey: 'complement',
-        header: 'Complemento',
+        header: () => <div className="text-center">Complemento</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('complement')}</div>,
     },
     {
         accessorKey: 'neighborhood',
-        header: 'Bairro',
+        header: () => <div className="text-center">Bairro</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('neighborhood')}</div>,
     },
     {
         accessorKey: 'city',
-        header: 'Cidade',
+        header: () => <div className="text-center">Cidade</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('city')}</div>,
     },
     {
         accessorKey: 'state',
-        header: 'Estado',
+        header: () => <div className="text-center">Estado</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('state')}</div>,
     },
     {
         id: 'actions',
@@ -162,7 +178,12 @@ export default function ListRecipients({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />
             <div className="p-4">
-                <h1 className="mb-4 text-2xl font-bold">Lista de Destinatários</h1>
+                <div className='flex justify-between content-center py-4'>
+                    <h1 className="mb-4 text-2xl font-bold">Lista de Destinatários</h1>
+                    <a href={route('recipients.create')}>
+                        <Button>Criar destinatário</Button>
+                    </a>
+                </div>
                 <DataTable
                     columns={columns}
                     data={recipients.data}

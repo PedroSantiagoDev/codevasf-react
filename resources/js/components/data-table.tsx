@@ -1,5 +1,6 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, Octagon, OctagonAlert } from 'lucide-react';
+import React from 'react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
@@ -17,18 +18,30 @@ interface DataTableProps<TData, TValue> {
     };
     onPageChange: (url: string) => void;
     onPerPageChange: (perPage: number) => void;
+    onSelectionChange?: (selected: TData[]) => void;
 }
 
 const pageSizeOptions = [10, 20, 30, 40, 50];
 
-export function DataTable<TData, TValue>({ data, columns, meta, onPageChange, onPerPageChange }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ data, columns, meta, onPageChange, onPerPageChange, onSelectionChange }: DataTableProps<TData, TValue>) {
+    const [rowSelection, setRowSelection] = React.useState({});
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        onRowSelectionChange: setRowSelection,
         manualPagination: true,
         pageCount: meta.last_page,
+        state: {
+            rowSelection,
+        },
     });
+
+    React.useEffect(() => {
+        const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+        onSelectionChange?.(selectedRows);
+    }, [rowSelection]);
 
     return (
         <div>
@@ -59,7 +72,7 @@ export function DataTable<TData, TValue>({ data, columns, meta, onPageChange, on
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    Nenhum resultado
+                                    Sem registros
                                 </TableCell>
                             </TableRow>
                         )}
@@ -68,7 +81,7 @@ export function DataTable<TData, TValue>({ data, columns, meta, onPageChange, on
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="text-muted-foreground flex-1 text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} de {table.getFilteredRowModel().rows.length}
+                    Selecionados {table.getFilteredSelectedRowModel().rows.length} de {table.getFilteredRowModel().rows.length}
                 </div>
                 <div className="flex items-center space-x-6 lg:space-x-8">
                     <div className="flex items-center space-x-2">
