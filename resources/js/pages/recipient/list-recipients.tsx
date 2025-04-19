@@ -178,7 +178,7 @@ export default function ListRecipients({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Destinatários" />
             <div className="p-4">
-                <div className='flex justify-between content-center py-4'>
+                <div className="flex content-center justify-between py-4">
                     <h1 className="mb-4 text-2xl font-bold">Lista de Destinatários</h1>
                     <a href={route('recipients.create')}>
                         <Button>Criar destinatário</Button>

@@ -1,5 +1,5 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { ChevronLeftIcon, ChevronRightIcon, Octagon, OctagonAlert } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -41,7 +41,7 @@ export function DataTable<TData, TValue>({ data, columns, meta, onPageChange, on
     React.useEffect(() => {
         const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
         onSelectionChange?.(selectedRows);
-    }, [rowSelection]);
+    }, [rowSelection, table, onSelectionChange]);
 
     return (
         <div>

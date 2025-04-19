@@ -21,7 +21,7 @@ class RecipientPublishedController extends Controller
     }
 
     /**
-     * @return LengthAwarePaginator<int, \App\Models\Recipient>
+     * @return LengthAwarePaginator<int, Recipient>
      */
     private function getRecipients(FinishTypeEnum $type, int $perPage): LengthAwarePaginator
     {
